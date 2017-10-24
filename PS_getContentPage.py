@@ -10,12 +10,9 @@ sys.setdefaultencoding('gbk')
 
 import PS_downloadFile
 
-oListPage = "http://www.1ppt.com/kejian/yuwen/161/"
-'''
-# 找到首页和尾页，得到所有内容.
-    #content4 = selector.xpath(u'//ul[@class="pages"]/li/a')
-'''
-def getContentByList(oListPageURL):
+#oListPage = "http://www.1ppt.com/kejian/yuwen/161/"
+
+def getContentByList(oListPageURL , oLocalPath):
 
     homePage = "http://www.1ppt.com"
     html = requests.get(oListPageURL)
@@ -27,10 +24,10 @@ def getContentByList(oListPageURL):
     for value in content3:
         listPageUrl = homePage + value
         print listPageUrl
-        oRet = PS_downloadFile.downLoadByURL(listPageUrl)
+        oRet = PS_downloadFile.downLoadByURL(listPageUrl , oLocalPath)
         if not oRet:
             print "try again!!"
-            PS_downloadFile.downLoadByURL(listPageUrl)
+            PS_downloadFile.downLoadByURL(listPageUrl , oLocalPath)
 
 
     #have nextpage 通过“下一页”的关键字查找
@@ -38,12 +35,20 @@ def getContentByList(oListPageURL):
     content4 = selector.xpath(u"//a[contains(text(), '下一页')]")
     for value in content4:
         strlistUrl = value.get('href')
-        nextPage = oListPage + strlistUrl
+        #herf绝对路径的方法没找到，就用字符串拼吧
+        op = oListPageURL.rfind('.')
+        if (op > 0):
+            op1 = oListPageURL.rfind('/') + 1
+            strRet = oListPageURL[:op1]
+            strRet = strRet.lower()
+            oListPageURL = strRet
+
+        nextPage = oListPageURL + strlistUrl
         print "next Page -----------------------"
         print nextPage
-        getContentByList(nextPage)
+        getContentByList(nextPage , oLocalPath)
 
 
-oStartPage = "kejian_1.html"
-oUrl = oListPage + oStartPage
-getContentByList(oUrl)
+#oStartPage = "kejian_1.html"
+#oUrl = oListPage + oStartPage
+#getContentByList(oUrl)

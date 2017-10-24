@@ -23,7 +23,7 @@ def getFileName(oURL):
         strRet = strRet.lower()
         return strRet
 
-def downLoadByURL(oUrl):
+def downLoadByURL(oUrl , dirPath):
 
     html = requests.get(oUrl).text
     selector = etree.HTML(html)
@@ -41,9 +41,8 @@ def downLoadByURL(oUrl):
                 "User-Agent":"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36"
                 }
 
-    localDir = 'D:\\pptSpider\\downloadFile\\'
     PDFName = getFileName(strZip)
-    localPDF = localDir + PDFName
+    localPDF = dirPath + "\\" + PDFName
 
     try:
         response = requests.get(strZip,headers = oHeader ,timeout=10)

@@ -3,6 +3,7 @@
 import requests
 import os
 from lxml import etree
+import PS_getContentPage
 
 homePage = "http://www.1ppt.com"
 localPath = "D:\\pptSpider\\downloadFile\\"
@@ -23,9 +24,12 @@ def getHomePage(oListPageURL):
         createPath = localPath + value1
         if oCounts > 5:
             print "[", oCounts, "]", value1, oListPageURL
+            if not os.path.exists(createPath):
+                os.mkdir(createPath)
+            PS_getContentPage.getContentByList(oListPageURL , createPath)
 
         #print createPath
-        #os.mkdir(createPath)
+        #
 
 oHomepage = 'http://www.1ppt.com/kejian/'
 getHomePage(oHomepage)
