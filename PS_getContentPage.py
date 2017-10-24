@@ -5,11 +5,12 @@ from lxml import etree
 
 import sys
 reload(sys)
-#sys.setdefaultencoding('gbk')
-sys.setdefaultencoding('utf-8')
+sys.setdefaultencoding('gbk')
+#sys.setdefaultencoding('utf-8')
 
 import PS_downloadFile
 
+oListPage = "http://www.1ppt.com/kejian/yuwen/161/"
 '''
 # 找到首页和尾页，得到所有内容.
     #content4 = selector.xpath(u'//ul[@class="pages"]/li/a')
@@ -17,7 +18,7 @@ import PS_downloadFile
 def getContentByList(oListPageURL):
 
     homePage = "http://www.1ppt.com"
-    html = requests.get(oUrl)
+    html = requests.get(oListPageURL)
     html.encoding = 'gb2312'
     selector = etree.HTML(html.text)
 
@@ -26,7 +27,10 @@ def getContentByList(oListPageURL):
     for value in content3:
         listPageUrl = homePage + value
         print listPageUrl
-        PS_downloadFile.downLoadByURL(listPageUrl)
+        oRet = PS_downloadFile.downLoadByURL(listPageUrl)
+        if not oRet:
+            print "try again!!"
+            PS_downloadFile.downLoadByURL(listPageUrl)
 
 
     #have nextpage 通过“下一页”的关键字查找
@@ -34,10 +38,12 @@ def getContentByList(oListPageURL):
     content4 = selector.xpath(u"//a[contains(text(), '下一页')]")
     for value in content4:
         strlistUrl = value.get('href')
-        print strlistUrl
+        nextPage = oListPage + strlistUrl
+        print "next Page -----------------------"
+        print nextPage
+        getContentByList(nextPage)
 
 
-
-
-oUrl = 'http://www.1ppt.com/kejian/yuwen/138/kejian_1.html'
+oStartPage = "kejian_1.html"
+oUrl = oListPage + oStartPage
 getContentByList(oUrl)
