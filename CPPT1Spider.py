@@ -2,16 +2,22 @@
 
 import requests
 import os
-import xlsxwriter
 from lxml import etree
+from requests.exceptions import ReadTimeout,ConnectionError,RequestException
 
 LOCALPATH = "/Users/Sophia/Codes/python/spider/pptDownLoad/"
 HOMEPAGE  = 'http://www.1ppt.com'
 
+'''
+简单封装了ppt1.com单站爬虫的分步功能，大体上分三个步骤：
+1、根据首页，获取板块分页目录  GetIndexPage()；
+2、遍历板块中的所有文档内容   GetContentByURL；
+3、获取文档信息             GetDocInfo
 
+扩展功能1:提供文件下载功能   DownLoadFile
+'''
 class CPPT1Spider():
     def __init__(self , homePage):
-        print "init"
         self.initWithHomePage(homePage)
     
     def initWithHomePage(self , oHomePage):
@@ -31,14 +37,14 @@ class CPPT1Spider():
             createPath = LOCALPATH + value1
             print "[", oCounts, "]", value1, oListPageURL
             oCounts = oCounts + 1        
-            self.getContentByURL(oListPageURL , createPath) 
+            self.GetContentByURL(oListPageURL , createPath) 
             #if not os.path.exists(createPath):
                 #os.mkdir(createPath)
-                #PS_getContentPage.getContentByURL(oListPageURL , createPath)
+                #PS_getContentPage.GetContentByURL(oListPageURL , createPath)
             #print createPath
 
-    #根据课堂的详细信息
-    def getContentByURL(self , oListPageURL , oLocalPath):
+    #根据板块首页，遍历所有详情页
+    def GetContentByURL(self , oListPageURL , oLocalPath):
 
         homePage = "http://www.1ppt.com"
         html = requests.get(oListPageURL)
@@ -67,9 +73,9 @@ class CPPT1Spider():
             nextPage = oListPageURL + strlistUrl
             print "next Page -----------------------"
             print nextPage
-            self.getContentByURL(nextPage , oLocalPath)
-
+            self.GetContentByURL(nextPage , oLocalPath)
     
+    #根据详情页地址，获取文档信息。ppt1中的docInfo有很多，我只取了其中三项。
     def GetDocInfo(self , oUrl):
         html = requests.get(oUrl)
         html.encoding = 'gb2312'        
@@ -81,10 +87,11 @@ class CPPT1Spider():
         print "课件详情页:" ,oUrl     
         strZip = str(zipUrl[0])
         print "课件地址:" ,strZip
+        #下载文件
+        #oRet = self.DownLoadFile(strZip)
 
-        #//html/body/div[6]/div[1]/dl/dd/div[1]/h1
         #频道地址
-#       docInfoList  = selector.xpath('//div[@class="info_left"]/ul/li[1]/a/@href')
+        #docInfoList  = selector.xpath('//div[@class="info_left"]/ul/li[1]/a/@href')
 
         #课件名称
         docInfoList  = selector.xpath('//div[@class="ppt_info clearfix"]/h1/text()')
@@ -92,9 +99,52 @@ class CPPT1Spider():
             print "课件名称:" , docInfoList[0]
         
         print ""
+    
+    def DownLoadFile(self, oFileURL):
+
+        #模拟报文头
+        oHeader = { "Accept":"text/html,application/xhtml+xml,application/xml;",
+                "Accept-Encoding":"gzip",
+                "Accept-Language":"zh-CN,zh;q=0.8",
+                "Referer":"http://www.1ppt.com/",
+                "User-Agent":"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36"
+                }
+
+        PDFName = self.GetFileNameByURL(oFileURL)
+        localPDF = LOCALPATH + PDFName
+
+        try:
+            response = requests.get(oFileURL,headers = oHeader ,timeout=10)
+            print(response.status_code)
+            print localPDF
+
+            if not os.path.exists(localPDF):
+                oFile = open(localPDF, "wb")
+                for chunk in response.iter_content(chunk_size=512):
+                    if chunk:
+                        oFile.write(chunk)
+            else:
+                print "had download file:" ,localPDF
+
+            return True
+        except ReadTimeout:
+            print("timeout")
+        except ConnectionError:
+            print("connection Error")
+        except RequestException:
+            print("error")
+
+        return False
+
+    def GetFileNameByURL(self, oURL):
+        op = oURL.rfind('/')
+        if (op > 0):
+            op = op + 1
+            strRet = oURL[op:]
+            strRet = strRet.lower()
+            return strRet
 
 if __name__ == "__main__":
-    print "main"
     oHomePage = 'http://www.1ppt.com/kejian/'
     oSpider = CPPT1Spider(oHomePage)
     oSpider.GetIndexPage()
