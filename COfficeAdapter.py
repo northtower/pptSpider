@@ -1,8 +1,9 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
+# -*- coding: gbk -*-
+
 '''''
-    对MSOffice COM接口的封装，简单实现文件打开、操作和关闭等行为。
-    为数据清洗和快照提供支持。
+��MSOffice COM�ӿڵķ�װ����ʵ���ļ��򿪡������͹رյ���Ϊ��
+Ϊ������ϴ�Ϳ����ṩ֧�֡�
 '''
 
 import win32com  
@@ -30,9 +31,9 @@ class COfficeAdapter():
         print self.m_Doc.Saved
         self.m_Doc.Close()
 
-
-oFilePath = r"D:\2.ppt"
-#oFilePath = r"D:\pptSpider\PPTFile\北师大版小学一年级上册数学PPT课件\1.3《小猫钓鱼》课件.ppt"
+#oFilePath = r"D:\2.ppt"
+oFilePath = r"D:\pptSpider\PPTFile\��ʦ���Сѧһ�꼶�ϲ���ѧPPT�μ�\1.3��Сè���㡷�μ�.ppt"
+print oFilePath
 oDoc = COfficeAdapter()
 oDoc.OpenDoc(oFilePath)
 oDoc.CloseDoc()
