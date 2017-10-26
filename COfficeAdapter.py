@@ -24,29 +24,39 @@ class COfficeAdapter():
         self.m_App.Quit()
 
     def OpenDoc(self, oPath):
+        oRet = False
         if os.path.exists(oPath):
             oPath = oPath.lower()
             oNameSplit = os.path.splitext(oPath)
             if (oNameSplit[1] == ".ppt" or oNameSplit[1] == ".pptx"):
-                  self.m_Doc = self.m_App.Presentations.Open(oPath)
+                try:
+                    self.m_Doc = self.m_App.Presentations.Open(oPath)
+                    oRet = True
+                except BaseException:
+                    print "OpenDoc Exception!!"
+
+        return oRet
 
     def SaveDoc(self, newfilename=None):
         if newfilename:       
             self.m_Doc.SaveAs(newfilename)                  
         else:   
-            self.m_Doc.Save() 
+            oRet = self.m_Doc.Save()
+            print "save:" ,oRet
 
     def CloseDoc(self):
-        print self.m_Doc.Saved
+        #print self.m_Doc.Saved
         self.m_Doc.Close()
 
-    #删除文档中恶意广告信息，只要包含制定字符，即删除整个textRange。
-    #此方法，主要针对"www.1ppt.com"。
+    # 删除文档中恶意广告信息，只要包含制定字符，即删除整个textRange。
+    # 此方法，主要针对"www.1ppt.com"。
+    # 有删除操作返回true
     def RemoveTextRange(self, oKeyStr):
+        oRet = False
         oSlideCounts = self.m_Doc.Slides.Count
         #遍历每一页，方便对每页数据进行操作
         for i in range(1 , oSlideCounts + 1):
-            print i ,"页"
+            #print i ,"页"
             oSlide = self.m_Doc.Slides.Item(i)
             oShapeCounts = oSlide.Shapes.Count
             #print oShapeCounts
@@ -61,32 +71,40 @@ class COfficeAdapter():
                         sText = oTR.Text
                         #转换为小写
                         sText = sText.lower()
-                        print sText
+                        #print sText
 
                         # 查找关键字，确认删除制定信息。
                         # 该方法并不用于最后一页，因为最后一页为整页的广告信息
                         oPos = sText.find(oKeyStr)
                         if oPos > 0  and i != oSlideCounts :
-                            print "remove textRange"
-                            oShape.Delete()                      
+                            print "remove textRange" , i ,"+" ,oSlideCounts
+                            oRet = True
+                            oShape.Delete()
+                            break
                         
                         if oPos > 0  and i == oSlideCounts :
                             print "delete Slide"
+                            oRet = True
                             oSlide.Delete()
                             break                       
 
                     except BaseException:
                         print "BaseException"
+        return  oRet
 
 
 def testDoc():
-    oFilePath = r"D:\pptSpider\PPTFile\北师大版小学一年级上册数学PPT课件\1.3《小猫钓鱼》课件.ppt"
+    #oFilePath = r"D:\2.ppt"
+    oFilePath = r"D:\3.pptx"
+    #oFilePath = r"D:\pptSpider\PPTFile1\A版小学一年级上册语文PPT课件\2015语文A版语文一上《蜘蛛织网》ppt课件1.pptx"
     oKeyWork = "www.1ppt.com"
     print oFilePath
     oDoc = COfficeAdapter()
-    oDoc.OpenDoc(oFilePath)
-    oDoc.RemoveTextRange(oKeyWork)
-    oDoc.SaveDoc()
-    oDoc.CloseDoc()
+    if oDoc.OpenDoc(oFilePath):
+        oRem = oDoc.RemoveTextRange(oKeyWork)
+        #只有当删除页面元素时，才进行文档保存操作
+        if oRem:
+            oDoc.SaveDoc()
+        oDoc.CloseDoc()
 
-testDoc()
+#testDoc()
