@@ -10,13 +10,16 @@
 4. 3万文档的分析结果；
 
 
-## 一、简单介绍1ppt.com的爬取逻辑
+## 专栏介绍
 
-1、站点分析
+[换个角度看文档，PPT的爬取与分析](http://www.jianshu.com/p/0688a808f719)
 
-分析1ppt.com 并不复杂，站点的结构也很简单，它的页面结构如下：
+## 文档介绍
 
-
+* PPT爬虫：CPPT1Spider.py
+* MSOffice 接口代理：COfficeAdapter.py
+* VB代码，ppt页面元素检索：basicMethod.vb
+* MSO应用逻辑：pyCallCOAdapter.py
 
 
 
