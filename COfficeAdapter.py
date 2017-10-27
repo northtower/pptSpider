@@ -15,13 +15,20 @@ msoTrue = -1
 class COfficeAdapter():
     def __init__(self ):
         print "init"
-        self.m_App = win32com.client.Dispatch('PowerPoint.Application')
+        try:
+            self.m_App = win32com.client.Dispatch('PowerPoint.Application')
+            self.m_App.Visible = 1
+        except BaseException:
+            print "init Exception!!"
         #隐式加载为0 ，显式加载为1
-        self.m_App.Visible = 1
 
     def __del__(self):
         print "__del__"
-        self.m_App.Quit()
+        try:
+            self.m_App.Quit()
+        except BaseException:
+            print "Quit Exception!!"
+
 
     def OpenDoc(self, oPath):
         oRet = False
@@ -46,7 +53,11 @@ class COfficeAdapter():
 
     def CloseDoc(self):
         #print self.m_Doc.Saved
-        self.m_Doc.Close()
+        try:
+            self.m_Doc.Close()
+        except BaseException:
+            print "Close Exception!!"
+
 
     # 删除文档中恶意广告信息，只要包含制定字符，即删除整个textRange。
     # 此方法，主要针对"www.1ppt.com"。
@@ -94,9 +105,7 @@ class COfficeAdapter():
 
 
 def testDoc():
-    #oFilePath = r"D:\2.ppt"
-    oFilePath = r"D:\3.pptx"
-    #oFilePath = r"D:\pptSpider\PPTFile1\A版小学一年级上册语文PPT课件\2015语文A版语文一上《蜘蛛织网》ppt课件1.pptx"
+    oFilePath = r"D:\pptSpider\PPTFile1\A版小学五年级下册语文PPT课件\2015语文A版语文五下《一双新鞋》ppt课件.pptx"
     oKeyWork = "www.1ppt.com"
     print oFilePath
     oDoc = COfficeAdapter()
