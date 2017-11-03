@@ -19,30 +19,35 @@ class CPandasUtility():
         print "CPandasUtility __del__"
 
     def PrintDataFrame(self):
-        print self.m_pd
+        #print self.m_pd
+        print "describe" , self.m_pd.describe()
 
+    def SetFileName(self, pFileName):  
+        if type(pFileName) is not types.StringType :
+            return False
+        
+        self.m_FileName = pFileName
+        return True
 
-    def AppendText(self, pFileName , pSlideIndex, pShapeIndex , pFontName ,pFontSize , pText):
+    def AppendText(self, pSlideIndex, pShapeIndex , pFontName ,pFontSize , pText):
 
         #参数检测
         oRet = False
-        if type(pFileName) is not types.StringType :
+
+        #print type(pFontName)
+        if type(pFontName) is not types.UnicodeType :
             return oRet
         
-        if type(pFontName) is not types.StringType :
-            return oRet
-        
-        if type(pText) is not types.StringType :
+        if type(pText) is not types.UnicodeType :
             return oRet
         
         if pSlideIndex < 1 or pShapeIndex < 1 or pFontSize < 1 :
             return oRet
 
-        
         if(self.m_HadInit):
             #not empty
             oItem = pd.Series({
-                'FileName' : pFileName,
+                'FileName' : self.m_FileName,
                 'SlideIndex' : pSlideIndex,                
                 'ShapeIndex' : pShapeIndex,                
                 'FontName' : pFontName,
@@ -53,7 +58,7 @@ class CPandasUtility():
             self.m_pd = self.m_pd.append(oItem , ignore_index=True)
         else:
             docInfo = {
-                'FileName' : pFileName,
+                'FileName' : self.m_FileName,
                 'SlideIndex' : pSlideIndex,    
                 'ShapeIndex' : pShapeIndex,                                            
                 'FontName' : pFontName,
@@ -63,7 +68,12 @@ class CPandasUtility():
             self.m_pd = pd.DataFrame(docInfo , index=[1])
             self.m_HadInit = True
 
-        
+        print self.m_pd
+    
+    def SaveCsv(self):
+        ofilePath = r"D:\pptSpider\DocInfo.csv"
+        self.m_pd.to_excel(ofilePath)
+
     def csvInfo(self):        
         filePath = r"D:\pptSpider\ex1.csv"
         jsonPath = r"D:\pptSpider\ex1.json"
@@ -164,11 +174,3 @@ def craeteDF():
 
 #craeteDF()
 
-str1 = "newDoc.pptt"
-str2 =  "黑体"
-str3 =  "text"
-
-obj1 = CPandasUtility()
-obj1.AppendText(str1 ,  1 , 1,str2,32 ,str3)
-obj1.AppendText(str1 ,  1 , 2,str2,32 ,str3)
-obj1.PrintDataFrame()
