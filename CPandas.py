@@ -2,6 +2,7 @@
 
 import pandas as pd
 import numpy as np
+import types
 
 '''''
 Pandas相关的一些方法，提供输入的导入导出。
@@ -11,9 +12,56 @@ Pandas相关的一些方法，提供输入的导入导出。
 class CPandasUtility():
     def __init__(self ):
         print "CPandasUtility __init__"
+        self.m_pd = pd.DataFrame    
+        self.m_HadInit = False
     
     def __del__(self):
         print "CPandasUtility __del__"
+
+    def PrintDataFrame(self):
+        print self.m_pd
+
+
+    def AppendText(self, pFileName , pSlideIndex, pShapeIndex , pFontName ,pFontSize , pText):
+
+        #参数检测
+        oRet = False
+        if type(pFileName) is not types.StringType :
+            return oRet
+        
+        if type(pFontName) is not types.StringType :
+            return oRet
+        
+        if type(pText) is not types.StringType :
+            return oRet
+        
+        if pSlideIndex < 1 or pShapeIndex < 1 or pFontSize < 1 :
+            return oRet
+
+        
+        if(self.m_HadInit):
+            #not empty
+            oItem = pd.Series({
+                'FileName' : pFileName,
+                'SlideIndex' : pSlideIndex,                
+                'ShapeIndex' : pShapeIndex,                
+                'FontName' : pFontName,
+                'Text' : pText,
+                'FontSize' : pFontSize })
+
+            #print oItem
+            self.m_pd = self.m_pd.append(oItem , ignore_index=True)
+        else:
+            docInfo = {
+                'FileName' : pFileName,
+                'SlideIndex' : pSlideIndex,    
+                'ShapeIndex' : pShapeIndex,                                            
+                'FontName' : pFontName,
+                'Text' : pText,
+                'FontSize' : pFontSize }
+
+            self.m_pd = pd.DataFrame(docInfo , index=[1])
+            self.m_HadInit = True
 
         
     def csvInfo(self):        
@@ -81,19 +129,6 @@ def craeteDF():
     
     print df3
 
-    s2 = pd.Series({
-        'FileName' : "newDoc.pptt",
-        'FontName' : "黑体",
-        'SlideItem' : 1,
-        'Index' : 1,
-        'Text' : "ssssss",
-        'FontSize' : 21 })
-    #s2=pd.Series(np.array(["newDoc.ppt","黑体" ,6,7,"打开端口打开的" ,8]))
-    print s2
-
-    df3 = df3.append(s2 , ignore_index=True)
-    print df3
-
     #print df3
 
     #s1=pd.Series(np.array(["FileName","SlideItem","Index","Text" , "FontName", "FontSize"]))
@@ -127,4 +162,13 @@ def craeteDF():
 
 
 
-craeteDF()
+#craeteDF()
+
+str1 = "newDoc.pptt"
+str2 =  "黑体"
+str3 =  "text"
+
+obj1 = CPandasUtility()
+obj1.AppendText(str1 ,  1 , 1,str2,32 ,str3)
+obj1.AppendText(str1 ,  1 , 2,str2,32 ,str3)
+obj1.PrintDataFrame()
